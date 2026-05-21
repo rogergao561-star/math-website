@@ -11,7 +11,25 @@
 
   let map;
   let markers = {};
+  let seaLabelLayer;
   let activeId = null;
+
+  /** Major seas/oceans — English only, shown at wider zoom levels. */
+  const SEA_LABELS = [
+    { name: "Arctic Ocean", lat: 75, lng: -45 },
+    { name: "Atlantic Ocean", lat: 10, lng: -35 },
+    { name: "Pacific Ocean", lat: 5, lng: -155 },
+    { name: "Indian Ocean", lat: -15, lng: 75 },
+    { name: "Mediterranean Sea", lat: 36, lng: 18 },
+    { name: "North Sea", lat: 56.5, lng: 3.5 },
+    { name: "Baltic Sea", lat: 58, lng: 19 },
+    { name: "Black Sea", lat: 43, lng: 34 },
+    { name: "Red Sea", lat: 20, lng: 38 },
+    { name: "Arabian Sea", lat: 14, lng: 64 },
+    { name: "Bay of Bengal", lat: 14, lng: 88 },
+    { name: "Adriatic Sea", lat: 42.5, lng: 16 },
+    { name: "Caspian Sea", lat: 42, lng: 51 },
+  ];
 
   function activeIndex() {
     return MATHEMATICIANS.findIndex((m) => m.id === activeId);
@@ -144,12 +162,39 @@
       maxZoom: 8,
     }).setView([30, 20], 3);
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
-      subdomains: "abcd",
-      maxZoom: 19,
-    }).addTo(map);
+    const esriAttribution =
+      'Tiles &copy; <a href="https://www.esri.com/">Esri</a>';
+
+    L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      { maxZoom: 16, attribution: esriAttribution }
+    ).addTo(map);
+
+    seaLabelLayer = L.layerGroup().addTo(map);
+    SEA_LABELS.forEach(({ name, lat, lng }) => {
+      L.marker([lat, lng], {
+        icon: L.divIcon({
+          className: "sea-label",
+          html: `<span>${name}</span>`,
+          iconSize: [1, 1],
+          iconAnchor: [0, 0],
+        }),
+        interactive: false,
+      }).addTo(seaLabelLayer);
+    });
+
+    function updateSeaLabelVisibility() {
+      if (!seaLabelLayer) return;
+      const show = map.getZoom() < 7;
+      if (show) {
+        if (!map.hasLayer(seaLabelLayer)) seaLabelLayer.addTo(map);
+      } else {
+        map.removeLayer(seaLabelLayer);
+      }
+    }
+
+    map.on("zoomend", updateSeaLabelVisibility);
+    updateSeaLabelVisibility();
 
     MATHEMATICIANS.forEach((m) => {
       const marker = L.marker([m.lat, m.lng], { icon: markerIcon(m, false) })
