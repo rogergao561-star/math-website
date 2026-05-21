@@ -142,7 +142,7 @@
       worldCopyJump: true,
       minZoom: 2,
       maxZoom: 8,
-    }).setView([30, 20], 2);
+    }).setView([30, 20], 3);
 
     L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
       attribution:
@@ -203,7 +203,7 @@
     updateMarkers(id);
 
     if (options.pan && map) {
-      map.flyTo([m.lat, m.lng], 5, { duration: 0.8 });
+      map.flyTo([m.lat, m.lng], 7, { duration: 0.8 });
       if (options.openPopup === true && markers[id]) {
         markers[id].openPopup();
       } else {
