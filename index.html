@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mathematicians Through History</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Mathematicians d Through History</h1>
+    <p>
+      From ancient Ionia to the modern era — explore 25 pioneering minds in chronological order.
+      Use the arrows, timeline, or map pins to explore in chronological order.
+    </p>
+  </header>
+
+  <main class="layout">
+    <section class="map-section" aria-label="Map of birthplaces">
+      <div id="map"></div>
+      <aside id="map-info-card" class="map-info-card hidden" aria-live="polite"></aside>
+      <nav class="chrono-nav map-nav" aria-label="Chronological navigation">
+        <button type="button" id="nav-prev" class="nav-btn" aria-label="Previous mathematician (earlier in time)">
+          <span class="nav-arrow" aria-hidden="true">←</span>
+          <span class="nav-label">Earlier</span>
+        </button>
+        <span id="nav-position" class="nav-position" aria-live="polite">—</span>
+        <button type="button" id="nav-next" class="nav-btn" aria-label="Next mathematician (later in time)">
+          <span class="nav-label">Later</span>
+          <span class="nav-arrow" aria-hidden="true">→</span>
+        </button>
+      </nav>
+      <div id="map-legend" class="map-legend" aria-hidden="true"></div>
+    </section>
+
+    <aside class="sidebar">
+      <div id="detail-panel" class="detail-panel empty">
+        <p>Select a mathematician from the timeline or click a pin on the map.</p>
+      </div>
+
+      <div class="timeline-header">
+        <h2>Chronological timeline</h2>
+        <p>Oldest at top — scroll to travel forward in time</p>
+      </div>
+
+      <div class="timeline-scroll">
+        <div id="timeline" class="timeline" role="list"></div>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    Birth years are approximate for ancient figures. Map coordinates mark traditional birthplaces.
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
