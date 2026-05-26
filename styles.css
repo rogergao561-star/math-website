@@ -70,6 +70,46 @@ header p {
   font-size: 1.05rem;
 }
 
+.category-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+.cat-btn {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+}
+
+.cat-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.cat-btn.active {
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.cat-btn.active[data-era="ancient"]    { background: #c4a35a; }
+.cat-btn.active[data-era="medieval"]   { background: #6b8cae; }
+.cat-btn.active[data-era="reason"]     { background: #4a7c59; }
+.cat-btn.active[data-era="nineteenth"] { background: #c45a7c; }
+.cat-btn.active[data-era="modern"]     { background: #5c4a9e; }
+
 .layout {
   display: grid;
   grid-template-columns: 1fr 380px;

@@ -8,29 +8,37 @@
   const navPrev = document.getElementById("nav-prev");
   const navNext = document.getElementById("nav-next");
   const navPosition = document.getElementById("nav-position");
+  const catButtons = document.querySelectorAll(".cat-btn");
 
   let map;
   let markers = {};
   let activeId = null;
+  let activeEra = "ancient";
+
+  function filteredList() {
+    return MATHEMATICIANS.filter((m) => m.era === activeEra);
+  }
 
   function activeIndex() {
-    return MATHEMATICIANS.findIndex((m) => m.id === activeId);
+    return filteredList().findIndex((m) => m.id === activeId);
   }
 
   function updateNavControls() {
+    const list = filteredList();
     const i = activeIndex();
-    const total = MATHEMATICIANS.length;
+    const total = list.length;
     navPrev.disabled = i <= 0;
     navNext.disabled = i < 0 || i >= total - 1;
     navPosition.textContent = i >= 0 ? `${i + 1} of ${total}` : "—";
   }
 
   function navigate(delta) {
+    const list = filteredList();
     const i = activeIndex();
     if (i < 0) return;
     const next = i + delta;
-    if (next < 0 || next >= MATHEMATICIANS.length) return;
-    selectMathematician(MATHEMATICIANS[next].id, { pan: true, openPopup: false });
+    if (next < 0 || next >= list.length) return;
+    selectMathematician(list[next].id, { pan: true, openPopup: false });
   }
 
   function formatYear(year) {
@@ -46,7 +54,7 @@
   }
 
   function renderLegend() {
-    const eras = [...new Set(MATHEMATICIANS.map((m) => m.era))];
+    const eras = Object.keys(ERA_LABELS);
     legendEl.innerHTML =
       "<h3>Era</h3>" +
       eras
@@ -112,13 +120,6 @@
     timelineScroll.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
   }
 
-  function updateMarkers(activeId) {
-    MATHEMATICIANS.forEach((mat) => {
-      const marker = markers[mat.id];
-      if (marker) marker.setIcon(markerIcon(mat, mat.id === activeId));
-    });
-  }
-
   function markerIcon(m, isActive) {
     const color = ERA_COLORS[m.era];
     const size = isActive ? 18 : 14;
@@ -128,6 +129,20 @@
       iconSize: [size, size],
       iconAnchor: [size / 2, size],
       popupAnchor: [0, -size],
+    });
+  }
+
+  function syncMarkersToEra() {
+    if (!map) return;
+    MATHEMATICIANS.forEach((m) => {
+      const marker = markers[m.id];
+      if (!marker) return;
+      if (m.era === activeEra) {
+        if (!map.hasLayer(marker)) map.addLayer(marker);
+        marker.setIcon(markerIcon(m, m.id === activeId));
+      } else {
+        if (map.hasLayer(marker)) map.removeLayer(marker);
+      }
     });
   }
 
@@ -153,7 +168,6 @@
 
     MATHEMATICIANS.forEach((m) => {
       const marker = L.marker([m.lat, m.lng], { icon: markerIcon(m, false) })
-        .addTo(map)
         .bindPopup(
           `<strong>${m.name}</strong><br>
            ${formatYear(m.birthYear)}<br>
@@ -164,11 +178,13 @@
       markers[m.id] = marker;
     });
 
+    syncMarkersToEra();
     setTimeout(() => map.invalidateSize(), 100);
   }
 
   function renderTimeline() {
-    timelineEl.innerHTML = MATHEMATICIANS.map(
+    const list = filteredList();
+    timelineEl.innerHTML = list.map(
       (m) => `
       <article class="timeline-item" data-id="${m.id}" style="--item-color:${ERA_COLORS[m.era]}">
         <div class="timeline-year">${formatYear(m.birthYear)}</div>
@@ -200,10 +216,10 @@
       scrollTimelineTo(id);
     }
 
-    updateMarkers(id);
+    syncMarkersToEra();
 
     if (options.pan && map) {
-      map.flyTo([m.lat, m.lng], 7, { duration: 0.8 });
+      map.flyTo([m.lat, m.lng], 5, { duration: 0.8 });
       if (options.openPopup === true && markers[id]) {
         markers[id].openPopup();
       } else {
@@ -213,6 +229,33 @@
 
     updateNavControls();
   }
+
+  function switchEra(era) {
+    activeEra = era;
+
+    catButtons.forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.era === era);
+    });
+
+    renderTimeline();
+    syncMarkersToEra();
+
+    const list = filteredList();
+    if (list.length > 0) {
+      selectMathematician(list[0].id, { pan: false, scrollTimeline: false });
+
+      if (map) {
+        const group = L.featureGroup(list.map((m) => markers[m.id]).filter(Boolean));
+        map.flyToBounds(group.getBounds().pad(0.3), { duration: 0.8, maxZoom: 5 });
+      }
+    }
+
+    updateNavControls();
+  }
+
+  catButtons.forEach((btn) => {
+    btn.addEventListener("click", () => switchEra(btn.dataset.era));
+  });
 
   navPrev.addEventListener("click", () => navigate(-1));
   navNext.addEventListener("click", () => navigate(1));
@@ -231,5 +274,5 @@
   renderLegend();
   renderTimeline();
   initMap();
-  selectMathematician(MATHEMATICIANS[0].id, { pan: !!map });
+  selectMathematician(filteredList()[0].id, { pan: !!map });
 })();
