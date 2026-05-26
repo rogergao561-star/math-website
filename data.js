@@ -62,7 +62,7 @@ const MATHEMATICIANS = [
     summary: "The greatest mathematician of antiquity. He blended geometry with physics and invented methods that foreshadowed integral calculus.",
     contributions: [
       "π approximation and area/volume formulas (sphere, cylinder, parabola)",
-      "Principle of buoyancy and levers ("Give me a place to stand…")",
+      "Principle of buoyancy and levers ('Give me a place to stand…')",
       "Method of exhaustion — precursor to limits and integration"
     ]
   },
@@ -191,7 +191,7 @@ const MATHEMATICIANS = [
     lat: 41.55,
     lng: 60.63,
     era: "medieval",
-    summary: "Persian polymath whose works introduced Hindu-Arabic numerals and algebra to the Islamic world and, later, Europe. The word "algorithm" comes from his Latinized name.",
+    summary: "Persian polymath whose works introduced Hindu-Arabic numerals and algebra to the Islamic world and, later, Europe. The word 'algorithm' comes from his Latinized name.",
     contributions: [
       "Al-Jabr — systematic treatment of linear and quadratic equations",
       "Popularized Hindu-Arabic numeral system in the West",
@@ -319,7 +319,7 @@ const MATHEMATICIANS = [
     lat: 47.16,
     lng: 0.57,
     era: "medieval",
-    summary: "Philosopher and mathematician who united algebra and geometry with coordinate systems — every "Cartesian plane" bears his name.",
+    summary: "Philosopher and mathematician who united algebra and geometry with coordinate systems — every 'Cartesian plane' bears his name.",
     contributions: [
       "Analytic geometry: coordinates link algebra and curves",
       "Method for tangents and early calculus ideas",
@@ -483,7 +483,7 @@ const MATHEMATICIANS = [
     lat: 52.27,
     lng: 10.52,
     era: "reason",
-    summary: "The "Prince of Mathematicians." At 19 he proved the constructibility of the regular 17-gon and later dominated number theory, statistics, and geodesy.",
+    summary: "The 'Prince of Mathematicians.' At 19 he proved the constructibility of the regular 17-gon and later dominated number theory, statistics, and geodesy.",
     contributions: [
       "Disquisitiones Arithmeticae — modern number theory",
       "Least squares, normal distribution, and surveying",
@@ -567,7 +567,7 @@ const MATHEMATICIANS = [
     lat: 59.93,
     lng: 30.32,
     era: "nineteenth",
-    summary: "Created set theory and proved that infinities come in different sizes, overturning the intuitive notion of a single "infinity."",
+    summary: "Created set theory and proved that infinities come in different sizes, overturning the intuitive notion of a single 'infinity.'",
     contributions: [
       "Different sizes of infinity (countable vs uncountable)",
       "Cantor's diagonal argument and continuum hypothesis",
@@ -699,7 +699,7 @@ const MATHEMATICIANS = [
     lat: 51.51,
     lng: -0.13,
     era: "modern",
-    summary: "Father of computer science and artificial intelligence. His Turing machine model defines what "computable" means; he broke Enigma in WWII.",
+    summary: "Father of computer science and artificial intelligence. His Turing machine model defines what 'computable' means; he broke Enigma in WWII.",
     contributions: [
       "Turing machine — foundation of computability theory",
       "Halting problem and universal computation",
@@ -795,7 +795,7 @@ const MATHEMATICIANS = [
     lat: -34.93,
     lng: 138.60,
     era: "modern",
-    summary: "Often called the "Mozart of mathematics." Youngest IMO gold medalist, Fields Medalist at 31, working across harmonic analysis, PDEs, and number theory.",
+    summary: "Often called the 'Mozart of mathematics.' Youngest IMO gold medalist, Fields Medalist at 31, working across harmonic analysis, PDEs, and number theory.",
     contributions: [
       "Green–Tao theorem: primes contain arbitrarily long arithmetic progressions",
       "Harmonic analysis, compressed sensing, and ergodic theory",
