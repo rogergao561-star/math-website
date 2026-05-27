@@ -15,12 +15,97 @@
   let activeId = null;
   let activeEra = "ancient";
 
+  const WIKI_API_HEADERS = {
+    "User-Agent": "MathHistoriansWebsite/1.0 (educational; local)",
+  };
+
   function filteredList() {
     return MATHEMATICIANS.filter((m) => m.era === activeEra);
   }
 
   function activeIndex() {
     return filteredList().findIndex((m) => m.id === activeId);
+  }
+
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function portraitUrl(m) {
+    return PORTRAIT_URLS[m.id] || null;
+  }
+
+  function portraitMarkup(m, alt, extraClass) {
+    const cls = extraClass ? `portrait ${extraClass}` : "portrait";
+    const url = portraitUrl(m);
+    const src = url ? ` src="${escapeHtml(url)}"` : "";
+    const state = url ? " portrait-loaded" : " portrait-loading";
+    return `<div class="${cls}${state}" data-portrait-id="${escapeHtml(m.id)}">
+      <img${src} alt="${escapeHtml(alt)}" loading="lazy" decoding="async" referrerpolicy="no-referrer" />
+    </div>`;
+  }
+
+  function applyPortraitToWrap(wrap, url) {
+    const img = wrap.querySelector("img");
+    if (!img) return;
+    if (url) {
+      img.src = url;
+      wrap.classList.remove("portrait-loading", "portrait-missing");
+      wrap.classList.add("portrait-loaded");
+    } else {
+      wrap.classList.remove("portrait-loading");
+      wrap.classList.add("portrait-missing");
+      img.removeAttribute("src");
+    }
+  }
+
+  async function fetchPortraitFromWiki(m) {
+    const wiki = WIKI_TITLES[m.id];
+    if (!wiki) return null;
+    try {
+      const api = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(wiki)}&prop=pageimages&format=json&pithumbsize=400&redirects=1&origin=*`;
+      const res = await fetch(api, { headers: WIKI_API_HEADERS });
+      if (!res.ok) return null;
+      const data = await res.json();
+      const page = Object.values(data.query?.pages || {})[0];
+      return page?.thumbnail?.source || null;
+    } catch {
+      return null;
+    }
+  }
+
+  function hydratePortraits(root) {
+    if (!root) return;
+    root.querySelectorAll("[data-portrait-id]").forEach((wrap) => {
+      const id = wrap.dataset.portraitId;
+      const m = MATHEMATICIANS.find((x) => x.id === id);
+      if (!m) return;
+
+      const img = wrap.querySelector("img");
+      if (!img) return;
+
+      const primary = portraitUrl(m);
+      if (primary) {
+        applyPortraitToWrap(wrap, primary);
+        img.onerror = () => {
+          img.onerror = null;
+          fetchPortraitFromWiki(m).then((fallback) => {
+            if (!document.body.contains(wrap)) return;
+            applyPortraitToWrap(wrap, fallback);
+          });
+        };
+        return;
+      }
+
+      wrap.classList.add("portrait-loading");
+      fetchPortraitFromWiki(m).then((url) => {
+        if (!document.body.contains(wrap)) return;
+        applyPortraitToWrap(wrap, url);
+      });
+    });
   }
 
   function updateNavControls() {
@@ -71,16 +156,21 @@
   function detailHtml(m) {
     const color = ERA_COLORS[m.era];
     return `
-      <span class="era-badge" style="background:${color}33;color:${color}">${ERA_LABELS[m.era]}</span>
-      <h2>${m.name}</h2>
-      <div class="detail-meta">
-        <span>${formatLifespan(m)}</span>
-        <span>📍 ${m.birthplace}</span>
+      <div class="detail-header">
+        ${portraitMarkup(m, `Portrait of ${m.name}`, "detail-portrait")}
+        <div class="detail-header-text">
+          <span class="era-badge" style="background:${color}33;color:${color}">${ERA_LABELS[m.era]}</span>
+          <h2>${escapeHtml(m.name)}</h2>
+          <div class="detail-meta">
+            <span>${formatLifespan(m)}</span>
+            <span>📍 ${escapeHtml(m.birthplace)}</span>
+          </div>
+        </div>
       </div>
-      <p class="summary">${m.summary}</p>
+      <p class="summary">${escapeHtml(m.summary)}</p>
       <h3>Key contributions</h3>
       <ul>
-        ${m.contributions.map((c) => `<li>${c}</li>`).join("")}
+        ${m.contributions.map((c) => `<li>${escapeHtml(c)}</li>`).join("")}
       </ul>
     `;
   }
@@ -99,14 +189,21 @@
 
     detailPanel.className = "detail-panel";
     detailPanel.innerHTML = detailHtml(m);
+    hydratePortraits(detailPanel);
 
     if (mapInfoCard) {
       mapInfoCard.classList.remove("hidden");
       mapInfoCard.innerHTML = `
-        <h2>${m.name}</h2>
-        <p class="map-info-meta">${formatLifespan(m)} · ${m.birthplace}</p>
-        <p class="map-info-summary">${m.summary}</p>
+        <div class="map-info-inner">
+          ${portraitMarkup(m, m.name, "map-info-portrait")}
+          <div class="map-info-text">
+            <h2>${escapeHtml(m.name)}</h2>
+            <p class="map-info-meta">${formatLifespan(m)} · ${escapeHtml(m.birthplace)}</p>
+            <p class="map-info-summary">${escapeHtml(m.summary)}</p>
+          </div>
+        </div>
       `;
+      hydratePortraits(mapInfoCard);
     }
   }
 
@@ -132,6 +229,19 @@
     });
   }
 
+  function popupHtml(m) {
+    return `
+      <div class="map-popup">
+        ${portraitMarkup(m, m.name, "popup-portrait")}
+        <div class="map-popup-text">
+          <strong>${escapeHtml(m.name)}</strong><br>
+          ${formatYear(m.birthYear)}<br>
+          ${escapeHtml(m.birthplace)}
+        </div>
+      </div>
+    `;
+  }
+
   function syncMarkersToEra() {
     if (!map) return;
     MATHEMATICIANS.forEach((m) => {
@@ -140,8 +250,8 @@
       if (m.era === activeEra) {
         if (!map.hasLayer(marker)) map.addLayer(marker);
         marker.setIcon(markerIcon(m, m.id === activeId));
-      } else {
-        if (map.hasLayer(marker)) map.removeLayer(marker);
+      } else if (map.hasLayer(marker)) {
+        map.removeLayer(marker);
       }
     });
   }
@@ -168,11 +278,13 @@
 
     MATHEMATICIANS.forEach((m) => {
       const marker = L.marker([m.lat, m.lng], { icon: markerIcon(m, false) })
-        .bindPopup(
-          `<strong>${m.name}</strong><br>
-           ${formatYear(m.birthYear)}<br>
-           ${m.birthplace}`
-        );
+        .addTo(map)
+        .bindPopup(popupHtml(m), { minWidth: 220, maxWidth: 280 });
+
+      marker.on("popupopen", (e) => {
+        const el = e.popup.getElement();
+        if (el) hydratePortraits(el);
+      });
 
       marker.on("click", () => selectMathematician(m.id, { pan: true }));
       markers[m.id] = marker;
@@ -184,21 +296,28 @@
 
   function renderTimeline() {
     const list = filteredList();
-    timelineEl.innerHTML = list.map(
-      (m) => `
+    timelineEl.innerHTML = list
+      .map(
+        (m) => `
       <article class="timeline-item" data-id="${m.id}" style="--item-color:${ERA_COLORS[m.era]}">
-        <div class="timeline-year">${formatYear(m.birthYear)}</div>
-        <h3>${m.name}</h3>
-        <div class="place">${m.birthplace}</div>
+        ${portraitMarkup(m, m.name, "timeline-portrait")}
+        <div class="timeline-body">
+          <div class="timeline-year">${formatYear(m.birthYear)}</div>
+          <h3>${escapeHtml(m.name)}</h3>
+          <div class="place">${escapeHtml(m.birthplace)}</div>
+        </div>
       </article>
     `
-    ).join("");
+      )
+      .join("");
 
     timelineEl.querySelectorAll(".timeline-item").forEach((el) => {
       el.addEventListener("click", () => {
         selectMathematician(el.dataset.id, { pan: true, scrollTimeline: true });
       });
     });
+
+    hydratePortraits(timelineEl);
   }
 
   function selectMathematician(id, options = {}) {

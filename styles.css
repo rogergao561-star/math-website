@@ -315,6 +315,17 @@ header p {
   display: none;
 }
 
+.map-info-inner {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+}
+
+.map-info-text {
+  flex: 1;
+  min-width: 0;
+}
+
 .map-info-card h2 {
   font-family: var(--font-display);
   font-size: 1.35rem;
@@ -364,6 +375,29 @@ header p {
   color: var(--text-muted);
   text-align: center;
   font-style: italic;
+}
+
+.detail-header {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.detail-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-header h2 {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  margin: 0 0 0.25rem;
+  font-weight: 600;
+}
+
+.detail-header .detail-meta {
+  margin-bottom: 0;
 }
 
 .detail-panel h2 {
@@ -460,6 +494,9 @@ header p {
 
 .timeline-item {
   position: relative;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
   margin-bottom: 0.5rem;
   padding: 0.85rem 1rem;
   background: var(--bg-elevated);
@@ -467,6 +504,11 @@ header p {
   border: 1px solid transparent;
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s, transform 0.15s;
+}
+
+.timeline-body {
+  flex: 1;
+  min-width: 0;
 }
 
 .timeline-item:hover {
@@ -553,6 +595,101 @@ header p {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   margin-left: -7px;
   margin-top: -14px;
+}
+
+/* Portraits (Wikipedia / Wikimedia Commons) */
+.portrait {
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-deep);
+  position: relative;
+}
+
+.portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.portrait-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.06),
+    transparent
+  );
+  animation: portrait-shimmer 1.2s infinite;
+}
+
+.portrait-missing {
+  background: var(--bg-elevated);
+}
+
+.portrait-missing img {
+  display: none;
+}
+
+.portrait-missing::before {
+  content: "∑";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+@keyframes portrait-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.detail-portrait {
+  width: 96px;
+  height: 120px;
+}
+
+.map-info-portrait {
+  width: 56px;
+  height: 68px;
+  border-radius: 8px;
+}
+
+.timeline-portrait {
+  width: 48px;
+  height: 58px;
+  border-radius: 8px;
+}
+
+.map-popup {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+}
+
+.map-popup-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.popup-portrait {
+  width: 52px;
+  height: 64px;
+  border-radius: 8px;
+}
+
+.leaflet-popup-content .portrait-missing::before {
+  font-size: 1rem;
 }
 
 footer {
